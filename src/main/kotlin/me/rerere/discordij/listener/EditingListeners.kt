@@ -1,5 +1,6 @@
 package me.rerere.discordij.listener
 
+import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent
@@ -8,7 +9,18 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.vcs.changes.shelf.ShelveChangesManager.PostStartupActivity
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.wm.IdeFrame
 import me.rerere.discordij.service.TimeService
+
+class AppListener : ApplicationActivationListener {
+    override fun applicationActivated(ideFrame: IdeFrame) {
+
+    }
+
+    override fun applicationDeactivated(ideFrame: IdeFrame) {
+
+    }
+}
 
 class ProjectListener : PostStartupActivity(), ProjectManagerListener {
     override fun runActivity(project: Project) {

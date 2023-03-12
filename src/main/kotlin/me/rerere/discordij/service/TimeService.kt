@@ -26,6 +26,10 @@ class TimeService {
     private var editingFile: FileItem? = null
     private var editingProject: ProjectItem? = null
 
+    fun onAppFrameCreated() {
+        // TODO("Not yet implemented")
+    }
+
     fun onProjectOpened(project: Project) {
         timeTracker.put("project:${project.name}", System.currentTimeMillis())
         editingProject = ProjectItem("project:${project.name}", project.name)

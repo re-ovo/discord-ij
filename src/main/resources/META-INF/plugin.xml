@@ -36,6 +36,10 @@
     </extensions>
 
     <applicationListeners>
+        <listener class="me.rerere.discordij.listener.AppListener"
+                  topic="com.intellij.openapi.application.ApplicationActivationListener"
+        />
+
         <listener
                 class="me.rerere.discordij.listener.FileListener"
                 topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
