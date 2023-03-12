@@ -11,6 +11,11 @@ import me.rerere.discordij.render.DiscordRPRender
 import me.rerere.discordij.setting.DiscordIJSettingProjectState
 import me.rerere.discordij.setting.DisplayMode
 
+/**
+ * TODO: Implement a better tracker?
+ *
+ * The current tracker seems to incorrectly set the user's status in some cases
+ */
 @Service
 class TimeService {
     private val startTime = System.currentTimeMillis()

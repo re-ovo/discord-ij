@@ -14,7 +14,9 @@ class DiscordIJConfigurable(
 ) : Configurable {
     private val panel = panel {
         val state = project.service<DiscordIJSettingProjectState>().state
-        group {
+        group(
+            "Display"
+        ) {
             row("Display Mode") {
                 comboBox(
                     items = DisplayMode.values().toList(),
