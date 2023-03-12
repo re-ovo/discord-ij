@@ -5,17 +5,16 @@
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-    <name>Discord-ij</name>
+    <name>Discord-IJ</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="support@yourcompany.com" url="https://www.yourcompany.com">YourCompany</vendor>
+    <vendor email="re_dev@qq.com" url="https://github.com/re-ovo">RE-OVO</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+        A plugin for the IntelliJ IDEA IDE that adds Discord Rich Presence support.
   ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -25,6 +24,24 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="me.rerere.discordij.listener.ProjectListener"/>
 
+        <projectService serviceImplementation="me.rerere.discordij.setting.DiscordIJSettingProjectState" />
+
+        <projectConfigurable
+                id="me.rerere.discordij.setting.DiscordIJConfigurableProject"
+                displayName="Discord-IJ"
+                instance="me.rerere.discordij.setting.DiscordIJConfigurable"
+        />
     </extensions>
+
+    <applicationListeners>
+        <listener
+                class="me.rerere.discordij.listener.FileListener"
+                topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
+        />
+
+        <listener class="me.rerere.discordij.listener.ProjectListener"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </applicationListeners>
 </idea-plugin>
