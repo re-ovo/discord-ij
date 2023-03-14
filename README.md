@@ -1,10 +1,39 @@
+<img src="src/main/resources/META-INF/pluginIcon.svg" width="64" height="64" alt="logo"/>
+
 # DiscordIJ
+![Stars](https://img.shields.io/github/stars/re-ovo/discord-ij?style=flat-square)
+![License](https://img.shields.io/github/license/re-ovo/discord-ij?style=flat-square)
+![Issues](https://img.shields.io/github/issues/re-ovo/discord-ij?style=flat-square)
+![Contributors](https://img.shields.io/github/contributors/re-ovo/discord-ij?style=flat-square)
+![Commits](https://img.shields.io/github/commit-activity/m/re-ovo/discord-ij?style=flat-square)   
 A plugin for the IntelliJ IDEA IDE that adds Discord Rich Presence support.
 
-> This is my first Intellij plugin, I am not familiar enough with the intellij API, so this plugin only implements the basic functions, I should consider adding more customization in the future
+## Installation
+You can install the plugin from the [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/21240-discordij).
+<iframe width="384px" height="319px" src="https://plugins.jetbrains.com/embeddable/card/21240"></iframe>
 
 ## Report a bug
 If you find a bug, please report it to the issue tracker.
+
+## IDE ICONS
+* IntelliJ IDEA (Ultimate, Community)
+* PyCharm (Professional, Community)
+* WebStorm
+* CLION
+* GOLAND
+* RIDER
+* PHPSTORM
+* ANDROID STUDIO
+> If the IDE is not listed above, the fallback icon will be used.
+
+## File ICONS
+* Java
+* Kotlin
+* Rust
+* Python
+* JavaScript
+* TypeScript
+> If the file type is not listed above, the fallback icon will be used.
 
 ## Add icons support for an IDE/File?
 If you want to add icons support for an IDE/File, please submit a pull request.
