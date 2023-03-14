@@ -10,7 +10,6 @@ A plugin for the IntelliJ IDEA IDE that adds Discord Rich Presence support.
 
 ## Installation
 You can install the plugin from the [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/21240-discordij).
-<iframe width="384px" height="319px" src="https://plugins.jetbrains.com/embeddable/card/21240"></iframe>
 
 ## Report a bug
 If you find a bug, please report it to the issue tracker.
