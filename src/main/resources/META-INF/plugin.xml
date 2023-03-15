@@ -15,6 +15,10 @@
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
         A plugin for the IntelliJ IDEA IDE that adds Discord Rich Presence support.
+        <br/>
+        <b>
+            Settings can be found in <i>Settings > Tools > DiscordIJ</i>
+        </b>
   ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -32,6 +36,7 @@
                 id="me.rerere.discordij.setting.DiscordIJConfigurableProject"
                 displayName="Discord-IJ"
                 instance="me.rerere.discordij.setting.DiscordIJConfigurable"
+                parentId="tools"
         />
     </extensions>
 
