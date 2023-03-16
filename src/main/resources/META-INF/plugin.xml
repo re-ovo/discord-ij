@@ -21,6 +21,13 @@
         </b>
   ]]></description>
 
+    <change-notes><![CDATA[
+        <ul>
+          <li>Support for IntelliJ 2022.2</li>
+        </ul>
+    ]]>
+    </change-notes>
+
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
@@ -30,7 +37,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="me.rerere.discordij.listener.ProjectListener"/>
 
-        <projectService serviceImplementation="me.rerere.discordij.setting.DiscordIJSettingProjectState" />
+        <projectService serviceImplementation="me.rerere.discordij.setting.DiscordIJSettingProjectState"/>
 
         <projectConfigurable
                 id="me.rerere.discordij.setting.DiscordIJConfigurableProject"
