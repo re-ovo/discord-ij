@@ -1,6 +1,5 @@
 package me.rerere.discordij.service
 
-import com.intellij.openapi.vfs.VirtualFile
 import me.rerere.discordij.DiscordIJ
 
 enum class FileType(
@@ -13,17 +12,23 @@ enum class FileType(
     PYTHON("Python", "python"),
     JAVASCRIPT("JavaScript", "javascript"),
     TYPESCRIPT("TypeScript", "typescript"),
+    C("C", "c"),
+    CPP("C++", "cpp"),
     FILE("*", "file"), // FALLBACK
 }
 
-fun getFileTypeByName(name: String) = when (name) {
+fun getFileTypeByName(name: String, extension: String?) = when (name) {
     "JAVA" -> FileType.JAVA
     "Kotlin" -> FileType.KOTLIN
     "Rust" -> FileType.RUST
     "Python" -> FileType.PYTHON
     "JavaScript" -> FileType.JAVASCRIPT
     "TypeScript" -> FileType.TYPESCRIPT
-    else -> FileType.FILE.also {
-        DiscordIJ.logger.warn("Unknown file type: $name")
+    else -> when(extension) {
+        "c", "h" -> FileType.C
+        "cpp", "hpp" -> FileType.CPP
+        else -> FileType.FILE.also {
+            DiscordIJ.logger.warn("Unknown file type: $name ($extension)")
+        }
     }
 }

@@ -23,7 +23,7 @@
 
     <change-notes><![CDATA[
         <ul>
-          <li>Support for IntelliJ 2022.2</li>
+          <li>Add C/C++ File Icon</li>
         </ul>
     ]]>
     </change-notes>

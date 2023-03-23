@@ -48,7 +48,7 @@ class TimeService {
 
     fun onFileOpened(project: Project, file: VirtualFile) {
         timeTracker.put("file:${file.name}", System.currentTimeMillis())
-        editingFile = FileItem("file:${file.name}", file.name, file.fileType.name)
+        editingFile = FileItem("file:${file.name}", file.name, file.fileType.name, file.extension)
         render(
             project = project,
         )
@@ -64,7 +64,7 @@ class TimeService {
     }
 
     fun onFileChanged(project: Project, file: VirtualFile) {
-        editingFile = FileItem("file:${file.name}", file.name, file.fileType.name)
+        editingFile = FileItem("file:${file.name}", file.name, file.fileType.name, file.extension)
         render(
             project = project,
         )
@@ -75,7 +75,7 @@ class TimeService {
         if (editingFile != null && state.displayMode == DisplayMode.FILE) {
             service<DiscordRPRender>().updateActivity(
                 ActivityWrapper(
-                    state = "Editing file ${editingFile?.fileName}",
+                    state = "Editing File: ${editingFile?.fileName}",
                     details = "Project: ${editingProject?.projectName}",
                     startTimestamp = editingFile?.key?.let { timeTracker.getIfPresent(it) },
                 ).applyIDEInfo().applyFileInfo()
@@ -83,7 +83,7 @@ class TimeService {
         } else if (editingProject != null && state.displayMode >= DisplayMode.PROJECT) {
             service<DiscordRPRender>().updateActivity(
                 ActivityWrapper(
-                    state = "Editing project ${editingProject?.projectName}",
+                    state = "Editing Project ${editingProject?.projectName}",
                     startTimestamp = editingProject?.key?.let { timeTracker.getIfPresent(it) },
                 ).applyIDEInfo()
             )
@@ -109,7 +109,7 @@ class TimeService {
 
     private fun ActivityWrapper.applyFileInfo(): ActivityWrapper {
         editingFile?.let {
-            val type = getFileTypeByName(it.type)
+            val type = getFileTypeByName(it.type, it.extension)
             smallImageKey = largeImageKey // swap
             smallImageText = largeImageText // swap
             largeImageKey = type.icon
@@ -131,5 +131,6 @@ class ProjectItem(
 class FileItem(
     key: String,
     val fileName: String,
-    val type: String
+    val type: String,
+    val extension: String?,
 ) : TimedItem(key)
