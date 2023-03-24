@@ -14,6 +14,8 @@ enum class FileType(
     TYPESCRIPT("TypeScript", "typescript"),
     C("C", "c"),
     CPP("C++", "cpp"),
+    CSHARP("C#", "csharp"),
+    VUE("Vue", "vue"),
     FILE("*", "file"), // FALLBACK
 }
 
@@ -24,9 +26,11 @@ fun getFileTypeByName(name: String, extension: String?) = when (name) {
     "Python" -> FileType.PYTHON
     "JavaScript" -> FileType.JAVASCRIPT
     "TypeScript" -> FileType.TYPESCRIPT
-    else -> when(extension) {
+    else -> when (extension) {
         "c", "h" -> FileType.C
         "cpp", "hpp" -> FileType.CPP
+        "vue" -> FileType.VUE
+        "cs" -> FileType.CSHARP
         else -> FileType.FILE.also {
             DiscordIJ.logger.warn("Unknown file type: $name ($extension)")
         }
