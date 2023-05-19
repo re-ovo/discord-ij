@@ -1,15 +1,24 @@
 package me.rerere.discordij.service
 
 import com.google.common.cache.CacheBuilder
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.ex.EditorEventMulticasterEx
+import com.intellij.openapi.editor.ex.FocusChangeListener
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import me.rerere.discordij.DiscordIJ
 import me.rerere.discordij.render.ActivityWrapper
 import me.rerere.discordij.render.DiscordRPRender
 import me.rerere.discordij.setting.DiscordIJSettingProjectState
 import me.rerere.discordij.setting.DisplayMode
+import org.apache.xerces.dom.DocumentImpl
+import java.util.UUID
 
 /**
  * TODO: Implement a better tracker?
@@ -17,7 +26,7 @@ import me.rerere.discordij.setting.DisplayMode
  * The current tracker seems to incorrectly set the user's status in some cases
  */
 @Service
-class TimeService {
+class TimeService : Disposable {
     private val startTime = System.currentTimeMillis()
     private var timeTracker = CacheBuilder.newBuilder()
         .expireAfterAccess(1, java.util.concurrent.TimeUnit.HOURS)
@@ -26,8 +35,17 @@ class TimeService {
     private var editingFile: FileItem? = null
     private var editingProject: ProjectItem? = null
 
-    fun onAppFrameCreated() {
-        // TODO("Not yet implemented")
+    init {
+        val multicaster: Any = EditorFactory.getInstance().eventMulticaster
+        if (multicaster is EditorEventMulticasterEx) {
+            multicaster.addFocusChangeListener(object : FocusChangeListener {
+                override fun focusGained(editor: Editor) {
+                    val project = editor.project ?: return
+                    val file = FileDocumentManager.getInstance().getFile(editor.document) ?: return
+                    onFileChanged(project, file)
+                }
+            }, this)
+        }
     }
 
     fun onProjectOpened(project: Project) {
@@ -59,8 +77,7 @@ class TimeService {
         editingFile = null
         render(
             project = project,
-
-            )
+        )
     }
 
     fun onFileChanged(project: Project, file: VirtualFile) {
@@ -76,14 +93,14 @@ class TimeService {
             service<DiscordRPRender>().updateActivity(
                 ActivityWrapper(
                     state = "Editing File: ${editingFile?.fileName}",
-                    details = "Project: ${editingProject?.projectName}",
+                    details = "Project: ${editingProject?.projectName ?: project.name}",
                     startTimestamp = editingFile?.key?.let { timeTracker.getIfPresent(it) },
                 ).applyIDEInfo().applyFileInfo()
             )
         } else if (editingProject != null && state.displayMode >= DisplayMode.PROJECT) {
             service<DiscordRPRender>().updateActivity(
                 ActivityWrapper(
-                    state = "Editing Project ${editingProject?.projectName}",
+                    state = "Editing Project ${editingProject?.projectName ?: project.name}",
                     startTimestamp = editingProject?.key?.let { timeTracker.getIfPresent(it) },
                 ).applyIDEInfo()
             )
@@ -116,6 +133,9 @@ class TimeService {
             largeImageText = type.name
         }
         return this
+    }
+
+    override fun dispose() {
     }
 }
 

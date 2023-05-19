@@ -23,7 +23,7 @@
 
     <change-notes><![CDATA[
         <ul>
-          <li>Add C/C++ File Icon</li>
+          <li>Fixed a bug that the plugin cannot detect the editing file in some cases.</li>
         </ul>
     ]]>
     </change-notes>
@@ -48,10 +48,6 @@
     </extensions>
 
     <applicationListeners>
-        <listener class="me.rerere.discordij.listener.AppListener"
-                  topic="com.intellij.openapi.application.ApplicationActivationListener"
-        />
-
         <listener
                 class="me.rerere.discordij.listener.FileListener"
                 topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"

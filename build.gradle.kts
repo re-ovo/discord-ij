@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.rerere"
-version = "1.0.6-SNAPSHOT"
+version = "1.0.7-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -51,8 +51,13 @@ tasks {
     }
 
     runIde {
-        ideDir.set(file(
-            "/Users/re/Library/Application Support/JetBrains/Toolbox/apps/WebStorm/ch-0/223.8836.50/WebStorm.app/Contents"
-        ))
+//        ideDir.set(file(
+//            "/Users/re/Library/Application Support/JetBrains/Toolbox/apps/Gateway/ch-0/231.9011.34/JetBrains Gateway.app/Contents"
+//        ))
+//        ideDir.set(
+//            file(
+//                "/Users/re/Library/Application Support/JetBrains/Toolbox/apps/WebStorm/ch-0/223.8836.50/WebStorm.app/Contents"
+//            )
+//        )
     }
 }
