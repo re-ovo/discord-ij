@@ -12,13 +12,10 @@ import com.intellij.openapi.editor.ex.FocusChangeListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import me.rerere.discordij.DiscordIJ
 import me.rerere.discordij.render.ActivityWrapper
 import me.rerere.discordij.render.DiscordRPRender
 import me.rerere.discordij.setting.DiscordIJSettingProjectState
 import me.rerere.discordij.setting.DisplayMode
-import org.apache.xerces.dom.DocumentImpl
-import java.util.UUID
 
 /**
  * TODO: Implement a better tracker?
@@ -66,6 +63,7 @@ class TimeService : Disposable {
 
     fun onFileOpened(project: Project, file: VirtualFile) {
         timeTracker.put("file:${file.name}", System.currentTimeMillis())
+        editingProject = ProjectItem("project:${project.name}", project.name)
         editingFile = FileItem("file:${file.name}", file.name, file.fileType.name, file.extension)
         render(
             project = project,
@@ -82,6 +80,7 @@ class TimeService : Disposable {
 
     fun onFileChanged(project: Project, file: VirtualFile) {
         editingFile = FileItem("file:${file.name}", file.name, file.fileType.name, file.extension)
+        editingProject = ProjectItem("project:${project.name}", project.name)
         render(
             project = project,
         )
