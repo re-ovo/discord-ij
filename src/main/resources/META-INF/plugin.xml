@@ -23,7 +23,7 @@
 
     <change-notes><![CDATA[
         <ul>
-          <li>Fixed a bug that the plugin cannot detect the editing file in some cases.</li>
+          <li>You can customize the format in settings now</li>
         </ul>
     ]]>
     </change-notes>
@@ -35,7 +35,7 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <postStartupActivity implementation="me.rerere.discordij.listener.ProjectListener"/>
+        <postStartupActivity implementation="me.rerere.discordij.listener.PostStartListener"/>
 
         <projectService serviceImplementation="me.rerere.discordij.setting.DiscordIJSettingProjectState"/>
 
@@ -56,4 +56,11 @@
         <listener class="me.rerere.discordij.listener.ProjectListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
+
+    <projectListeners>
+        <listener
+                class="me.rerere.discordij.listener.FileProblemListener"
+                topic="com.intellij.analysis.problemsView.ProblemsListener"
+        />
+    </projectListeners>
 </idea-plugin>

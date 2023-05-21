@@ -1,6 +1,7 @@
 package me.rerere.discordij.service
 
 import com.google.common.cache.CacheBuilder
+import com.intellij.analysis.problemsView.ProblemsCollector
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.components.Service
@@ -12,10 +13,12 @@ import com.intellij.openapi.editor.ex.FocusChangeListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import me.rerere.discordij.DiscordIJ
 import me.rerere.discordij.render.ActivityWrapper
 import me.rerere.discordij.render.DiscordRPRender
 import me.rerere.discordij.setting.DiscordIJSettingProjectState
 import me.rerere.discordij.setting.DisplayMode
+import java.lang.ref.WeakReference
 
 /**
  * TODO: Implement a better tracker?
@@ -47,7 +50,7 @@ class TimeService : Disposable {
 
     fun onProjectOpened(project: Project) {
         timeTracker.put("project:${project.name}", System.currentTimeMillis())
-        editingProject = ProjectItem("project:${project.name}", project.name)
+        editingProject = ProjectItem.from(project)
         render(
             project = project
         )
@@ -63,8 +66,8 @@ class TimeService : Disposable {
 
     fun onFileOpened(project: Project, file: VirtualFile) {
         timeTracker.put("file:${file.name}", System.currentTimeMillis())
-        editingProject = ProjectItem("project:${project.name}", project.name)
-        editingFile = FileItem("file:${file.name}", file.name, file.fileType.name, file.extension)
+        editingProject = ProjectItem.from(project)
+        editingFile = FileItem.from(file)
         render(
             project = project,
         )
@@ -79,34 +82,54 @@ class TimeService : Disposable {
     }
 
     fun onFileChanged(project: Project, file: VirtualFile) {
-        editingFile = FileItem("file:${file.name}", file.name, file.fileType.name, file.extension)
-        editingProject = ProjectItem("project:${project.name}", project.name)
+        editingFile = FileItem.from(file)
+        editingProject = ProjectItem.from(project)
         render(
             project = project,
         )
     }
 
     fun render(project: Project) {
-        val state = project.service<DiscordIJSettingProjectState>().state
-        if (editingFile != null && state.displayMode == DisplayMode.FILE) {
+        val configState = project.service<DiscordIJSettingProjectState>().state
+        val problemsCollector = ProblemsCollector.getInstance(project)
+
+        if (editingFile != null && configState.displayMode == DisplayMode.FILE) {
+            val problems = editingFile?.file?.get()?.let { problemsCollector.getFileProblemCount(it) } ?: 0
+            val variables = mapOf(
+                "%projectName%" to (editingProject?.projectName ?: "--"),
+                "%projectPath%" to (editingProject?.projectPath ?: "--"),
+                "%projectProblems%" to problemsCollector.getProblemCount().toString(),
+                "%fileName%" to (editingFile?.fileName ?: "--"),
+                "%filePath%" to (editingFile?.filePath ?: "--"),
+                "%fileProblems%" to problems.toString()
+            )
+
             service<DiscordRPRender>().updateActivity(
                 ActivityWrapper(
-                    state = "Editing File: ${editingFile?.fileName}",
-                    details = "Project: ${editingProject?.projectName ?: project.name}",
+                    state = configState.fileStateFormat.replaceVariables(variables),
+                    details = configState.fileDetailFormat.ifBlank { null }?.replaceVariables(variables),
                     startTimestamp = editingFile?.key?.let { timeTracker.getIfPresent(it) },
                 ).applyIDEInfo().applyFileInfo()
             )
-        } else if (editingProject != null && state.displayMode >= DisplayMode.PROJECT) {
+
+            DiscordIJ.logger.warn("rendering file: ${configState.fileStateFormat.replaceVariables(variables)}")
+        } else if (editingProject != null && configState.displayMode >= DisplayMode.PROJECT) {
+            val variables = mapOf(
+                "%projectName%" to (editingProject?.projectName ?: "--"),
+                "%projectPath%" to (editingProject?.projectPath ?: "--"),
+                "%projectProblems%" to problemsCollector.getProblemCount().toString()
+            )
             service<DiscordRPRender>().updateActivity(
                 ActivityWrapper(
-                    state = "Editing Project ${editingProject?.projectName ?: project.name}",
+                    state = configState.projectStateFormat.replaceVariables(variables),
+                    details = configState.projectDetailFormat.ifBlank { null }?.replaceVariables(variables),
                     startTimestamp = editingProject?.key?.let { timeTracker.getIfPresent(it) },
                 ).applyIDEInfo()
             )
         } else {
             service<DiscordRPRender>().updateActivity(
                 ActivityWrapper(
-                    state = if (state.displayMode == DisplayMode.IDE)
+                    state = if (configState.displayMode == DisplayMode.IDE)
                         ApplicationInfoEx.getInstanceEx().fullApplicationName
                     else
                         "Idle",
@@ -142,14 +165,48 @@ sealed class TimedItem(
     val key: String
 )
 
+private fun String.replaceVariables(variables: Map<String, String>): String {
+    var result = this
+    variables.forEach { (key, value) ->
+        result = result.replace(key, value)
+    }
+    return result
+}
+
 class ProjectItem(
     key: String,
     val projectName: String,
-) : TimedItem(key)
+    val projectPath: String?,
+) : TimedItem(key) {
+    companion object {
+        fun from(project: Project): ProjectItem {
+            return ProjectItem(
+                "project:${project.name}",
+                project.name,
+                project.basePath
+            )
+        }
+    }
+}
 
 class FileItem(
     key: String,
+    val file: WeakReference<VirtualFile>,
     val fileName: String,
     val type: String,
     val extension: String?,
-) : TimedItem(key)
+    val filePath: String?,
+) : TimedItem(key) {
+    companion object {
+        fun from(file: VirtualFile): FileItem {
+            return FileItem(
+                "file:${file.name}",
+                WeakReference(file),
+                file.name,
+                file.fileType.name,
+                file.extension,
+                file.path,
+            )
+        }
+    }
+}
