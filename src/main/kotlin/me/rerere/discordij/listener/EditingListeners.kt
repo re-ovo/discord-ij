@@ -3,6 +3,8 @@ package me.rerere.discordij.listener
 import com.intellij.analysis.problemsView.Problem
 import com.intellij.analysis.problemsView.ProblemsCollector
 import com.intellij.analysis.problemsView.ProblemsListener
+import com.intellij.openapi.application.Application
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent
@@ -49,17 +51,23 @@ class FileListener: FileEditorManagerListener {
 
 class FileProblemListener: ProblemsListener {
     override fun problemAppeared(problem: Problem) {
-        val service = service<TimeService>()
-        service.render(problem.provider.project)
+        ApplicationManager.getApplication().invokeLater {
+            val service = service<TimeService>()
+            service.render(problem.provider.project)
+        }
     }
 
     override fun problemDisappeared(problem: Problem) {
-        val service = service<TimeService>()
-        service.render(problem.provider.project)
+        ApplicationManager.getApplication().invokeLater {
+            val service = service<TimeService>()
+            service.render(problem.provider.project)
+        }
     }
 
     override fun problemUpdated(problem: Problem) {
-        val service = service<TimeService>()
-        service.render(problem.provider.project)
+        ApplicationManager.getApplication().invokeLater {
+            val service = service<TimeService>()
+            service.render(problem.provider.project)
+        }
     }
 }

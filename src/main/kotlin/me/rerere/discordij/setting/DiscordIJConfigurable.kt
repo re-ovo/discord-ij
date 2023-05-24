@@ -3,19 +3,12 @@ package me.rerere.discordij.setting
 import com.intellij.openapi.components.service
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.openapi.ui.validation.validationErrorFor
-import com.intellij.openapi.ui.validation.validationErrorIf
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.layout.enteredTextSatisfies
-import me.rerere.discordij.DiscordIJ
 import me.rerere.discordij.service.TimeService
-import java.awt.Color
-import javax.swing.InputVerifier
 import javax.swing.JComponent
-import javax.swing.JTextField
 
 class DiscordIJConfigurable(
     private val project: Project
