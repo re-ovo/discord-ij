@@ -16,6 +16,7 @@ enum class IDEType(
     RIDER("Rider", "rider"),
     PHPSTORM("PhpStorm", "phpstorm"),
     ANDROID_STUDIO("Android Studio", "android_studio"),
+    RUSTROVER("RustRover", "rustrover"),
     JETBRAINS("JetBrains", "jetbrains"), // FALLBACK
 }
 
@@ -50,6 +51,7 @@ val currentIDEType by lazy {
         "RD" -> IDEType.RIDER
         "PS" -> IDEType.PHPSTORM
         "AI" -> IDEType.ANDROID_STUDIO
+        "RR" -> IDEType.RUSTROVER
         else -> IDEType.JETBRAINS.also {
             DiscordIJ.logger.warn("Unknown IDE type: ${info.build.productCode}")
         }
