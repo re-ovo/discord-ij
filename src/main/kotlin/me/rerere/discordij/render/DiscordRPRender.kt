@@ -19,7 +19,7 @@ class DiscordRPRender : Disposable {
     )
 
     // TODO: Maybe let use to re-init discord rp if they want
-    fun init() = kotlin.runCatching {
+    private fun init() = kotlin.runCatching {
         val core = Core(
             CreateParams().apply {
                 clientID = APPLICATION_ID
@@ -28,7 +28,11 @@ class DiscordRPRender : Disposable {
         )
         scope.launch(Dispatchers.IO) {
             delay(1000L)
-            core.runCallbacks()
+            runCatching {
+                core.runCallbacks()
+            }.onFailure {
+                it.printStackTrace()
+            }
         }
         activityManager = core.activityManager()
     }.also {
