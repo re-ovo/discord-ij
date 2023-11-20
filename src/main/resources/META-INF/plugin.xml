@@ -23,7 +23,7 @@
 
     <change-notes><![CDATA[
         <ul>
-          <li>You can customize the format in settings now</li>
+          <li>Add %branch% and %repository% placeholders</li>
         </ul>
     ]]>
     </change-notes>
@@ -31,6 +31,7 @@
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
+    <depends>Git4Idea</depends>
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->

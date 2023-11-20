@@ -100,6 +100,9 @@ class DiscordIJConfigurable(
                         <li>%fileName%: File name</li>
                         <li>%fileProblems%: Number of problems</li>
                         <li>%filePath%: File path</li>
+                        <li>%projectProblems%: Number of problems in project</li>
+                        <li>%branch%: Current branch name</li>
+                        <li>%repository%: Current repository</li>
                     </ul>
                     """.trimIndent(), "Placeholders"
                 )

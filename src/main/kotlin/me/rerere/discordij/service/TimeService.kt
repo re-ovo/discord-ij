@@ -4,6 +4,7 @@ import com.google.common.cache.CacheBuilder
 import com.intellij.analysis.problemsView.ProblemsCollector
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationInfoEx
+import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
@@ -19,6 +20,7 @@ import me.rerere.discordij.render.ActivityWrapper
 import me.rerere.discordij.render.DiscordRPRender
 import me.rerere.discordij.setting.DiscordIJSettingProjectState
 import me.rerere.discordij.setting.DisplayMode
+import org.jetbrains.concurrency.runAsync
 import java.lang.ref.WeakReference
 
 /**
@@ -91,57 +93,69 @@ class TimeService : Disposable {
     }
 
     fun render(project: Project) {
-        val configState = project.service<DiscordIJSettingProjectState>().state
-        val problemsCollector = ProblemsCollector.getInstance(project)
+        runAsync {
+            runCatching {
+                val configState = project.service<DiscordIJSettingProjectState>().state
+                val problemsCollector = ProblemsCollector.getInstance(project)
+                val repo = editingFile?.file?.get()?.let {
+                    GitUtil.getRepositoryManager(project).getRepositoryForFile(it)
+                }
+                val branchName = repo?.currentBranch?.name ?: "--"
+                val repoName = repo?.presentableUrl ?: "--"
 
-        if (editingFile != null && configState.displayMode == DisplayMode.FILE) {
-            val problems = editingFile?.file?.get()?.let { problemsCollector.getFileProblemCount(it) } ?: 0
-            val branchName = editingFile?.file?.get()?.let {
-                GitUtil.getRepositoriesForFiles(project, listOf(it)).firstOrNull()?.currentBranch?.name
-            } ?: "--"
+                if (editingFile != null && configState.displayMode == DisplayMode.FILE) {
+                    val problems = editingFile?.file?.get()?.let { problemsCollector.getFileProblemCount(it) } ?: 0
 
-            val variables = mapOf(
-                "%projectName%" to (editingProject?.projectName ?: "--"),
-                "%projectPath%" to (editingProject?.projectPath ?: "--"),
-                "%projectProblems%" to problemsCollector.getProblemCount().toString(),
-                "%fileName%" to (editingFile?.fileName ?: "--"),
-                "%filePath%" to (editingFile?.filePath ?: "--"),
-                "%fileProblems%" to problems.toString(),
-                "%branch%" to branchName,
-            )
+                    val variables = mapOf(
+                        "%projectName%" to (editingProject?.projectName ?: "--"),
+                        "%projectPath%" to (editingProject?.projectPath ?: "--"),
+                        "%projectProblems%" to problemsCollector.getProblemCount().toString(),
+                        "%fileName%" to (editingFile?.fileName ?: "--"),
+                        "%filePath%" to (editingFile?.filePath ?: "--"),
+                        "%fileProblems%" to problems.toString(),
+                        "%branch%" to branchName,
+                        "%repository%" to repoName,
+                    )
 
-            service<DiscordRPRender>().updateActivity(
-                ActivityWrapper(
-                    state = configState.fileStateFormat.replaceVariables(variables),
-                    details = configState.fileDetailFormat.ifBlank { null }?.replaceVariables(variables),
-                    startTimestamp = editingFile?.key?.let { timeTracker.getIfPresent(it) },
-                ).applyIDEInfo().applyFileInfo()
-            )
+                    service<DiscordRPRender>().updateActivity(
+                        ActivityWrapper(
+                            state = configState.fileStateFormat.replaceVariables(variables),
+                            details = configState.fileDetailFormat.ifBlank { null }?.replaceVariables(variables),
+                            startTimestamp = editingFile?.key?.let { timeTracker.getIfPresent(it) },
+                        ).applyIDEInfo().applyFileInfo()
+                    )
 
-            DiscordIJ.logger.warn("rendering file: ${configState.fileStateFormat.replaceVariables(variables)}")
-        } else if (editingProject != null && configState.displayMode >= DisplayMode.PROJECT) {
-            val variables = mapOf(
-                "%projectName%" to (editingProject?.projectName ?: "--"),
-                "%projectPath%" to (editingProject?.projectPath ?: "--"),
-                "%projectProblems%" to problemsCollector.getProblemCount().toString()
-            )
-            service<DiscordRPRender>().updateActivity(
-                ActivityWrapper(
-                    state = configState.projectStateFormat.replaceVariables(variables),
-                    details = configState.projectDetailFormat.ifBlank { null }?.replaceVariables(variables),
-                    startTimestamp = editingProject?.key?.let { timeTracker.getIfPresent(it) },
-                ).applyIDEInfo()
-            )
-        } else {
-            service<DiscordRPRender>().updateActivity(
-                ActivityWrapper(
-                    state = if (configState.displayMode == DisplayMode.IDE)
-                        ApplicationInfoEx.getInstanceEx().fullApplicationName
-                    else
-                        "Idle",
-                    startTimestamp = startTime,
-                ).applyIDEInfo()
-            )
+                    DiscordIJ.logger.warn("rendering file: ${configState.fileStateFormat.replaceVariables(variables)}")
+                } else if (editingProject != null && configState.displayMode >= DisplayMode.PROJECT) {
+                    val variables = mapOf(
+                        "%projectName%" to (editingProject?.projectName ?: "--"),
+                        "%projectPath%" to (editingProject?.projectPath ?: "--"),
+                        "%projectProblems%" to problemsCollector.getProblemCount().toString(),
+                        "%branch%" to branchName,
+                        "%repository%" to repoName,
+                    )
+                    service<DiscordRPRender>().updateActivity(
+                        ActivityWrapper(
+                            state = configState.projectStateFormat.replaceVariables(variables),
+                            details = configState.projectDetailFormat.ifBlank { null }?.replaceVariables(variables),
+                            startTimestamp = editingProject?.key?.let { timeTracker.getIfPresent(it) },
+                        ).applyIDEInfo()
+                    )
+                } else {
+                    service<DiscordRPRender>().updateActivity(
+                        ActivityWrapper(
+                            state = if (configState.displayMode == DisplayMode.IDE)
+                                ApplicationInfoEx.getInstanceEx().fullApplicationName
+                            else
+                                "Idle",
+                            startTimestamp = startTime,
+                        ).applyIDEInfo()
+                    )
+                }
+            }.onFailure {
+                it.printStackTrace()
+                println("Failed to render activity: ${it.message}")
+            }
         }
     }
 
