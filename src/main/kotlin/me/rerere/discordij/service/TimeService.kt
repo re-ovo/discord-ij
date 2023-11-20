@@ -13,6 +13,7 @@ import com.intellij.openapi.editor.ex.FocusChangeListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import git4idea.GitUtil
 import me.rerere.discordij.DiscordIJ
 import me.rerere.discordij.render.ActivityWrapper
 import me.rerere.discordij.render.DiscordRPRender
@@ -95,13 +96,18 @@ class TimeService : Disposable {
 
         if (editingFile != null && configState.displayMode == DisplayMode.FILE) {
             val problems = editingFile?.file?.get()?.let { problemsCollector.getFileProblemCount(it) } ?: 0
+            val branchName = editingFile?.file?.get()?.let {
+                GitUtil.getRepositoriesForFiles(project, listOf(it)).firstOrNull()?.currentBranch?.name
+            } ?: "--"
+
             val variables = mapOf(
                 "%projectName%" to (editingProject?.projectName ?: "--"),
                 "%projectPath%" to (editingProject?.projectPath ?: "--"),
                 "%projectProblems%" to problemsCollector.getProblemCount().toString(),
                 "%fileName%" to (editingFile?.fileName ?: "--"),
                 "%filePath%" to (editingFile?.filePath ?: "--"),
-                "%fileProblems%" to problems.toString()
+                "%fileProblems%" to problems.toString(),
+                "%branch%" to branchName,
             )
 
             service<DiscordRPRender>().updateActivity(

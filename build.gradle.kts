@@ -22,7 +22,7 @@ intellij {
     version.set("2023.1")
     type.set("IC") // Target IDE Platform
 
-    plugins.set(listOf(/* Plugin Dependencies */))
+    plugins.set(listOf("Git4Idea"))
 }
 
 tasks {
